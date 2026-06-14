@@ -54,6 +54,16 @@ router.get("/availability", async (req: Request, res: Response) => {
             id: true,
             isAvailable: true,
             lastUpdated: true,
+            keyLogs: {
+              where: {
+                timeIn: null,
+              },
+              select: {
+                studentName: true,
+                studentId: true,
+                phoneNumber: true,
+              },
+            },
           },
         },
         schedules: {
@@ -76,6 +86,7 @@ router.get("/availability", async (req: Request, res: Response) => {
     // 5. Evaluate availability and conflict prediction for each room
     const result = rooms.map((room) => {
       const roomKey = room.keys[0] || null;
+      const activeLog = roomKey?.keyLogs?.[0] || null;
       
       // Check for time intersections among the room's schedules for this day
       // Conflict formula: Requested_Start_Time < Existing_End_Time AND Requested_End_Time > Existing_Start_Time
@@ -93,6 +104,7 @@ router.get("/availability", async (req: Request, res: Response) => {
           id: roomKey.id,
           isAvailable: roomKey.isAvailable,
           lastUpdated: roomKey.lastUpdated,
+          activeLog: activeLog,
         } : null,
         isKeyAvailable: roomKey ? roomKey.isAvailable : false,
         prediction: {
