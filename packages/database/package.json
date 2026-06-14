@@ -10,10 +10,15 @@
     "db:studio": "prisma studio",
     "build": "tsc"
   },
+  "prisma": {
+    "seed": "bun prisma/seed.ts"
+  },
   "dependencies": {
-    "@prisma/client": "^5.14.0"
+    "@prisma/client": "^5.14.0",
+    "bcrypt": "^5.1.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "prisma": "^5.14.0",
     "typescript": "^5.4.5"
   }
