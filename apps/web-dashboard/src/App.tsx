@@ -3,6 +3,7 @@ import Login from "./components/Login.tsx";
 import CaretakerWorkspace from "./components/CaretakerWorkspace.tsx";
 import OfficialWorkspace from "./components/OfficialWorkspace.tsx";
 import AdminWorkspace from "./components/AdminWorkspace.tsx";
+import PublicWorkspace from "./components/PublicWorkspace.tsx";
 
 interface TokenPayload {
   id: string;
@@ -34,6 +35,7 @@ export default function App() {
   const [user, setUser] = useState<TokenPayload | null>(null);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
+  // Sync state with URL PopState changes
   useEffect(() => {
     const handleLocationChange = () => {
       setCurrentPath(window.location.pathname);
@@ -42,14 +44,13 @@ export default function App() {
     return () => window.removeEventListener("popstate", handleLocationChange);
   }, []);
 
+  // Decode and validate token on load or changes
   useEffect(() => {
     if (token) {
       const decoded = decodeToken(token);
-      // Check expiration (exp is in seconds, Date.now() in ms)
       if (decoded && decoded.exp * 1000 > Date.now()) {
         setUser(decoded);
       } else {
-        // Token expired or malformed
         handleLogout();
       }
     } else {
@@ -57,6 +58,17 @@ export default function App() {
     }
   }, [token]);
 
+  // Route protection redirects for unauthenticated users
+  useEffect(() => {
+    if (!token || !user) {
+      if (currentPath !== "/" && currentPath !== "/login") {
+        window.history.replaceState(null, "", "/login");
+        setCurrentPath("/login");
+      }
+    }
+  }, [token, user, currentPath]);
+
+  // Route protection redirects for authenticated users
   useEffect(() => {
     if (user) {
       if (user.role === "super_admin" && currentPath !== "/admin") {
@@ -65,9 +77,9 @@ export default function App() {
       } else if (user.role === "official" && currentPath !== "/official") {
         window.history.replaceState(null, "", "/official");
         setCurrentPath("/official");
-      } else if (user.role === "caretaker" && currentPath !== "/") {
-        window.history.replaceState(null, "", "/");
-        setCurrentPath("/");
+      } else if (user.role === "caretaker" && currentPath !== "/caretaker") {
+        window.history.replaceState(null, "", "/caretaker");
+        setCurrentPath("/caretaker");
       }
     }
   }, [user, currentPath]);
@@ -83,10 +95,15 @@ export default function App() {
     setUser(null);
   };
 
+  // 1. Unauthenticated views
   if (!token || !user) {
+    if (currentPath === "/") {
+      return <PublicWorkspace />;
+    }
     return <Login onLoginSuccess={handleLogin} />;
   }
 
+  // 2. Authenticated views
   return (
     <div className="min-h-screen bg-[#F6F8FA] flex flex-col font-sans">
       {/* Header bar inspired by GitHub Primer */}
@@ -117,7 +134,7 @@ export default function App() {
           <AdminWorkspace token={token} />
         ) : user.role === "official" && currentPath === "/official" ? (
           <OfficialWorkspace token={token} />
-        ) : user.role === "caretaker" && currentPath === "/" ? (
+        ) : user.role === "caretaker" && currentPath === "/caretaker" ? (
           <CaretakerWorkspace token={token} />
         ) : (
           <div className="text-center py-12 text-[#656D76]">Redirecting to authorized workspace...</div>
