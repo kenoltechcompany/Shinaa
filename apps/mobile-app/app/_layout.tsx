@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  SafeAreaView,
   Platform
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { loadSavedServerUrl, saveServerUrl } from "../src/config";
 
 interface Campus {
@@ -88,17 +88,20 @@ export default function RootLayout() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0969DA" />
-        <Text style={styles.loadingText}>Initializing Shinaa Ledger...</Text>
-      </View>
+      <SafeAreaProvider>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0969DA" />
+          <Text style={styles.loadingText}>Initializing Shinaa Ledger...</Text>
+        </View>
+      </SafeAreaProvider>
     );
   }
 
   // Render Discovery Screen if server_url is not saved
   if (!hasUrl) {
     return (
-      <SafeAreaView style={styles.discoveryContainer}>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.discoveryContainer}>
         <View style={styles.discoveryHeader}>
           <Text style={styles.logo}>Shinaa</Text>
           <Text style={styles.discoveryTitle}>Campus Discovery</Text>
@@ -159,32 +162,35 @@ export default function RootLayout() {
           />
         )}
       </SafeAreaView>
+      </SafeAreaProvider>
     );
   }
 
   // Render normal stack navigation
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: "#FFFFFF",
-        },
-        headerTintColor: "#1F2328",
-        headerShadowVisible: true,
-        headerTitleStyle: {
-          fontWeight: "600",
-          fontSize: 16,
-        },
-        contentStyle: {
-          backgroundColor: "#F6F8FA",
-        },
-      }}
-    >
-      <Stack.Screen name="(public)/index" options={{ title: "Shinaa - Live Ledger" }} />
-      <Stack.Screen name="login" options={{ title: "Caretaker Sign In" }} />
-      <Stack.Screen name="(caretaker)/caretaker" options={{ title: "Caretaker Ledger", headerLeft: () => null }} />
-      <Stack.Screen name="(caretaker)/index" options={{ title: "Caretaker Ledger", headerLeft: () => null }} />
-    </Stack>
+    <SafeAreaProvider>
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: "#FFFFFF",
+          },
+          headerTintColor: "#1F2328",
+          headerShadowVisible: true,
+          headerTitleStyle: {
+            fontWeight: "600",
+            fontSize: 16,
+          },
+          contentStyle: {
+            backgroundColor: "#F6F8FA",
+          },
+        }}
+      >
+        <Stack.Screen name="(public)/index" options={{ title: "Shinaa - Live Ledger" }} />
+        <Stack.Screen name="login" options={{ title: "Caretaker Sign In" }} />
+        <Stack.Screen name="(caretaker)/caretaker" options={{ title: "Caretaker Ledger", headerLeft: () => null }} />
+        <Stack.Screen name="(caretaker)/index" options={{ title: "Caretaker Ledger", headerLeft: () => null }} />
+      </Stack>
+    </SafeAreaProvider>
   );
 }
 
