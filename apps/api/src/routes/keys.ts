@@ -68,28 +68,27 @@ router.post("/:id/return", async (req: AuthenticatedRequest, res: Response) => {
       where: { id: keyId },
     });
 
-    if (!key) {
-      return res.status(404).json({ error: "Key not found" });
+    const { logId } = req.body;
+
+    if (!logId) {
+      return res.status(400).json({ error: "logId is required in the request body" });
     }
 
-    // Find the active open log for this key (most recent first)
-    const activeLog = await prisma.keyLog.findFirst({
-      where: {
-        keyId,
-        timeIn: null,
-      },
-      orderBy: {
-        timeOut: "desc",
-      },
+    const logRecord = await prisma.keyLog.findUnique({
+      where: { id: logId },
     });
 
-    if (!activeLog) {
-      return res.status(400).json({ error: "No active checkout log found for this key" });
+    if (!logRecord || logRecord.keyId !== keyId) {
+      return res.status(404).json({ error: "Checkout record not found or does not match this key" });
+    }
+
+    if (logRecord.timeIn !== null) {
+      return res.status(400).json({ error: "Key checkout record is already closed (returned)" });
     }
 
     // Update active log to record key return
     const log = await prisma.keyLog.update({
-      where: { id: activeLog.id },
+      where: { id: logId },
       data: { timeIn: new Date() },
     });
 

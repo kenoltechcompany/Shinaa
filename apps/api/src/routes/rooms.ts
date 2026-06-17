@@ -127,4 +127,57 @@ router.get("/availability", async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/rooms/:id/peek - Peek upcoming schedules for a room
+router.get("/:id/peek", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const room = await prisma.room.findUnique({
+      where: { id },
+    });
+
+    if (!room) {
+      return res.status(404).json({ error: "Room not found" });
+    }
+
+    const now = new Date();
+    const jsDay = now.getDay();
+    const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+
+    const todayStr = now.toISOString().split("T")[0];
+    const [year, month, day] = todayStr.split("-").map(Number);
+    const localToday = new Date(year, month - 1, day);
+
+    const currentH = String(now.getHours()).padStart(2, "0");
+    const currentM = String(now.getMinutes()).padStart(2, "0");
+    const currentTimeString = `${currentH}:${currentM}`;
+
+    const schedules = await prisma.schedule.findMany({
+      where: {
+        roomId: id,
+        OR: [
+          {
+            scheduleType: "recurring_class",
+            dayOfWeek,
+          },
+          {
+            scheduleType: "one_time_event",
+            specificDate: localToday,
+          },
+        ],
+      },
+    });
+
+    const upcomingSchedules = schedules
+      .filter((s) => s.endTime > currentTimeString)
+      .sort((a, b) => a.startTime.localeCompare(b.startTime))
+      .slice(0, 3);
+
+    return res.json(upcomingSchedules);
+  } catch (error) {
+    console.error("Peek room schedules error:", error);
+    return res.status(500).json({ error: "An internal server error occurred" });
+  }
+});
+
 export default router;

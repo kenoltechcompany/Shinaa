@@ -1,0 +1,14 @@
+[
+  {
+    "id": "shinaa-local-dev",
+    "name": "Shinaa Local Development Server",
+    "aliases": ["Localhost", "Dev", "Test"],
+    "server_url": "http://10.0.2.2:3000"
+  },
+  {
+    "id": "gctu",
+    "name": "Ghana Communication Technology University",
+    "aliases": ["GCTU", "Ghana Telecom"],
+    "server_url": "https://shinaa.gctu.edu.gh"
+  }
+]
