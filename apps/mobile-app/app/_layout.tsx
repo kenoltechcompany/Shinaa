@@ -141,12 +141,12 @@ export default function RootLayout() {
         {!discoveryLoading && !discoveryError && (
           <FlatList
             data={filteredCampuses}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item: Campus) => item.id}
             contentContainerStyle={styles.listContainer}
             ListEmptyComponent={
               <Text style={styles.emptyText}>No campuses found matching your search.</Text>
             }
-            renderItem={({ item }) => (
+            renderItem={({ item }: { item: Campus }) => (
               <TouchableOpacity
                 style={styles.campusCard}
                 onPress={() => handleSelectCampus(item)}

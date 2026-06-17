@@ -11,7 +11,7 @@
       "db:push": "bun x prisma@5.14.0 db push --schema=packages/database/prisma/schema.prisma --skip-generate",
       "db:seed": "bun --env-file=.env packages/database/prisma/seed.ts",
       "create-admin": "bun run --cwd apps/api scripts/create-admin.ts",
-      "dev": "concurrently \"bun --filter @shinaa/api dev\" \"bun --filter @shinaa/web-dashboard dev\" \"bun --filter @shinaa/mobile-app start\""
+      "dev": "concurrently \"bun --filter @shinaa/api dev\" \"bun --filter @shinaa/web-dashboard dev\" \"npm run --prefix apps/mobile-app start\""
     },
     "devDependencies": {
       "concurrently": "^8.2.2",
