@@ -1,16 +1,36 @@
 # Shinaa 🗝️🗓️
 
-**Shinaa** is a lightweight, open-source key logging and class scheduling prediction system tailored for university campus environments. It solves operational bottlenecks for caretakers logging physical keys and provides students with vacancy predictions based on class schedules.
+### An enterprise-grade, federated campus key and schedule tracking platform.
+***Proudly built and maintained by [KENOL Tech Company](https://github.com/orgs/KENOL-Tech-Company/dashboard).***
 
 ---
 
-## 🛠️ Federated Architecture Model
+## 📖 Introduction
 
-Shinaa operates on a **federated architecture** designed to balance local ownership of university data with a unified, friction-free mobile experience for end-users:
+In busy academic institutions, managing classroom access and key handoffs is traditionally a chaotic process. Fragmented manual logbooks kept by caretakers lead to lost keys, unauthorized entries, and zero visibility for students. Students often walk across campus only to find their target classrooms occupied by unscheduled lectures or locked entirely.
 
-1. **Self-Hosted School Backends**: Each participating university hosts its own deployment of the Shinaa REST API and database. This ensures that student information, key logs, and classroom timetables remain secure and locally governed by the institution's IT department.
-2. **Universal Mobile Client**: Instead of compiling different applications for different campuses, a single universal mobile app binary is shared. 
-3. **Federated Discovery Protocol**: On initial launch, the mobile app connects to a global, production-ready school registry. Tapping a listed university dynamically reconfigures the mobile app's active API client routing configuration to point directly to that school's self-hosted instance using secure local storage.
+**Shinaa** solves these operational bottlenecks by replacing outdated physical ledgers with a unified, lightning-fast digital workspace. It provides caretakers with a secure, concurrent key checkout flow, officials with schedule and event publishing dashboards, and students with real-time class scheduling and room availability status.
+
+Designed with data privacy and scalability in mind, Shinaa utilizes a federated system design. This allows individual universities to self-host their core database and API infrastructures to comply with local privacy regulations while still sharing a single, universal client application catalog.
+
+---
+
+## 🛠️ Tech Stack
+
+Shinaa is organized as a high-performance TypeScript monorepo powered by Bun Workspaces:
+
+| Domain | Technologies |
+| :--- | :--- |
+| **Backend API** | Node.js, Express, PostgreSQL, Prisma ORM |
+| **Web Dashboard** | React, Vite, Tailwind CSS (styled to GitHub Primer UI specifications) |
+| **Mobile App** | React Native, Expo, Nativewind |
+| **Tooling & Orchestration** | Bun Workspaces, Docker, Turborepo |
+
+---
+
+## 🌐 The Federated Architecture
+
+Shinaa is built on a **federated network model** that decouples user discovery from university data storage:
 
 ```text
                                  [ Universal Mobile App ]
@@ -30,23 +50,28 @@ Shinaa operates on a **federated architecture** designed to balance local owners
                                                        [ Campus PostgreSQL DB ]
 ```
 
+1. **Independent Self-Hosting**: Each university IT department or computer science organization deploys their own instance of the Shinaa REST API and PostgreSQL database. All student information, staff credentials, room records, and checkout logs remain strictly under the university's control.
+2. **Universal App Binary**: Users download one universal mobile application from the app store.
+3. **Dynamic Registry Discovery**: On initial boot, the mobile app downloads a global `directory.json` phonebook hosted on GitHub Pages. The app displays a searchable directory list. When a user selects their university, the app saves that university's unique API endpoint to SecureStore and dynamically redirects all subsequent queries to that self-hosted backend.
+
 ---
 
-## ⚡ 3-Minute Developer Setup Guide
+## ⚡ Local Development & Quickstart
 
-Get a fully functioning local developer environment running in under three minutes using Docker and Bun.
+Get a fully functioning local developer environment running in under three minutes:
 
-### 1. Prerequisites
-Ensure you have the following installed on your machine:
-- [Bun](https://bun.sh/) (v1.0.0 or higher)
-- [Docker & Docker Compose](https://www.docker.com/)
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Kelvin-Lamptey/Shinaa.git
+cd Shinaa
+```
 
 ### 2. Configure Environment Variables
-Copy the `.env.example` file to `.env` in the project root directory:
+Copy the `.env.example` file to `.env` in the project root:
 ```bash
 cp .env.example .env
 ```
-*(The default credentials and database URLs are pre-configured to work out of the box with the local Docker Compose PostgreSQL database).*
+*(The default configuration points to a local PostgreSQL instance spun up in the next step).*
 
 ### 3. Spin Up the Database
 Start the PostgreSQL container service in the background:
@@ -54,7 +79,7 @@ Start the PostgreSQL container service in the background:
 bun run db:up
 ```
 
-### 4. Bootstrap and Seed the Database
+### 4. Install Dependencies & Seed Database
 Install all monorepo dependencies, push the relational schemas to your local PostgreSQL instance, and populate the database with mock records (staff credentials and campus classrooms):
 ```bash
 bun install
@@ -63,33 +88,33 @@ bun run db:seed
 ```
 
 ### 5. Launch the Development Stack
-Start the backend server, React web dashboard, and Expo mobile client concurrently with a single command:
+Start the backend API server, React web dashboard, and Expo mobile client concurrently:
 ```bash
 bun run dev
 ```
-- **REST API:** `http://localhost:3000`
-- **Web Dashboard:** `http://localhost:5173`
-- **Mobile Client:** `http://localhost:8081` (Press `w` to open in browser, `a` for Android emulator, or `i` for iOS simulator)
+* **REST API**: `http://localhost:3000`
+* **Web Dashboard**: `http://localhost:5173`
+* **Mobile Client**: `http://localhost:8081` (Press `w` to open in browser, `a` for Android emulator, or `i` for iOS simulator)
 
 ---
 
-## 🔑 Default Mock Credentials
+## 🔑 Default Seeding Credentials
 
-The database seeding script creates the following accounts for immediate local authentication:
+The database seeding script creates the following accounts for local testing:
 
 ### 1. Official Admin User
-- **Email:** `official@shinaa.edu`
-- **Password:** `official123`
-- **Permitted Actions:** Uploading weekly timetables via CSV and logging single classroom reservations.
+* **Email**: `official@shinaa.edu`
+* **Password**: `official123`
+* **Privileges**: Uploading timetables via CSV and logging single classroom reservations.
 
 ### 2. Caretaker User
-- **Email:** `caretaker@shinaa.edu`
-- **Password:** `caretaker123`
-- **Permitted Actions:** Checking out available keys (recording student details) and returning active keys.
+* **Email**: `caretaker@shinaa.edu`
+* **Password**: `caretaker123`
+* **Privileges**: Checking out keys to students, returning keys, and viewing concurrent ledger logs.
 
 ---
 
-## 🌐 Federated Onboarding Guide (Add Your School)
+## 🏫 Adding a School to the Directory (Federated Onboarding)
 
 If you are a university IT department, computer science club, or student developer looking to deploy Shinaa for your campus, follow these steps to list your school globally:
 
@@ -122,19 +147,12 @@ Construct a JSON listing object for your university using the schema detailed be
 
 ---
 
-## 🖥️ Monorepo Orchestration Scripts
-
-Run these commands from the root directory to manage the stack:
-
-| Script Command | Description |
-| :--- | :--- |
-| `bun run db:up` | Spins up the Docker container holding the PostgreSQL instance. |
-| `bun run db:down` | Stops and tears down the PostgreSQL container. |
-| `bun run db:push` | Pushes the Prisma relational schema updates directly to the database. |
-| `bun run db:seed` | Resets and seeds users, classrooms, and keys into the database. |
-| `bun run dev` | Runs backend, web dashboard, and mobile Expo servers in parallel. |
-
----
-
 ## 📄 License
-This project is open-source and licensed under the MIT License.
+
+This project is licensed under the MIT License.
+
+Copyright (c) 2026 KENOL Tech Company.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
