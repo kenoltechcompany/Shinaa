@@ -7,7 +7,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#FFFFFF" 
+        "backgroundColor": "#FFFFFF"
       },
       "package": "com.kenoltechcompany.shinaa"
     },
@@ -19,6 +19,12 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3940e837-4bd1-46de-9ef5-e2469c9eaa25"
+      }
+    }
   }
 }
