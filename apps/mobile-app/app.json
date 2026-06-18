@@ -3,6 +3,14 @@
     "name": "Shinaa",
     "slug": "shinaa",
     "version": "1.0.0",
+    "icon": "./assets/images/icon.png",
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#FFFFFF" 
+      },
+      "package": "com.kenoltechcompany.shinaa"
+    },
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "scheme": "shinaa",
